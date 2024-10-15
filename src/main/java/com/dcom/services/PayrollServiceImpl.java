@@ -71,7 +71,7 @@ public class PayrollServiceImpl extends UnicastRemoteObject implements PayrollSe
         }
     }
 
-    public PayrollTemplate generatePayroll(String token, int payrollId) {
+    public PayrollTemplate generatePayroll(String token, int payrollId, int employeeUserId) {
         UserSessionInfo userSessionInfo = JWTUtil.validateToken(token);
         if (userSessionInfo == null) {
             System.out.println("Invalid or expired token");
@@ -82,16 +82,21 @@ public class PayrollServiceImpl extends UnicastRemoteObject implements PayrollSe
 
         final Employee[] employeeHolder = new Employee[1]; // Array to hold employee result
         final Payroll[] payrollHolder = new Payroll[1]; // Array to hold payroll result
+
         Thread employeeThread = new Thread(() -> {
             try {
-                employeeHolder[0] = retrieveEmployee(dbService, userSessionInfo.getUserId());
+                if(userSessionInfo.getUserType().equals("HR")){
+                    employeeHolder[0] = retrieveEmployee(dbService, employeeUserId);
+                }else{
+                    employeeHolder[0] = retrieveEmployee(dbService, userSessionInfo.getUserId());
+                }
             } catch (RemoteException e) {
                 System.out.println("Error retrieving employee: " + e.getMessage());
             }
         });
         Thread payrollThread = new Thread(() -> {
             try {
-                payrollHolder[0] = retrievePayroll(dbService, payrollId, userSessionInfo.getUserId());
+                payrollHolder[0] = retrievePayroll(dbService, payrollId, userSessionInfo.getUserId(), userSessionInfo.getUserType());
             } catch (RemoteException e) {
                 System.out.println("Error retrieving payroll: " + e.getMessage());
             }
@@ -122,11 +127,15 @@ public class PayrollServiceImpl extends UnicastRemoteObject implements PayrollSe
         return dbService.retrieveEmployee(userId);
     }
 
-    private Payroll retrievePayroll(DataRetrievalInterface dbService, int payrollId, int userId) throws RemoteException {
+    private Payroll retrievePayroll(DataRetrievalInterface dbService, int payrollId, int userId, String userType) throws RemoteException {
         Payroll payroll = dbService.retrievePayrollByPayRollId(payrollId);
-        if (payroll == null || payroll.getUserId() != userId) {
-            System.out.println("User does not have permission to view this payroll.");
-            return null;
+        if(payroll != null && userType.equals("HR")){
+            return payroll;
+        }else{
+            if (payroll == null || payroll.getUserId() != userId) {
+                System.out.println("User does not have permission to view this payroll.");
+                return null;
+            }
         }
         return payroll;
     }

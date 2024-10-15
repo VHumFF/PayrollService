@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface PayrollService extends Remote {
     Map<Integer, String> getPayrollListForUser(String token) throws RemoteException;
-    PayrollTemplate generatePayroll(String token, int payrollId) throws RemoteException;
+    PayrollTemplate generatePayroll(String token, int payrollId, int employeeUserId) throws RemoteException;
     boolean processPayroll(String token, int payrollId) throws RemoteException;
     List<Payroll> getPayrollList(String token) throws RemoteException;
 }
