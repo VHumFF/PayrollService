@@ -1,6 +1,10 @@
 package com.dcom.dataModel;
 
-public class PayrollTemplate {
+import java.io.Serializable;
+
+public class PayrollTemplate implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String employeeName;
     private String payPeriod;
