@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,14 +57,13 @@ public class PayrollServiceImpl extends UnicastRemoteObject implements PayrollSe
         Map<Integer, String> payrollMap = new HashMap<>();
         try{
             List<Payroll> payrollList = dbService.retrievePayrollByUserId(userSessionInfo.getUserId());
-            for(Payroll payroll: payrollList){
+            for (Payroll payroll : payrollList) {
                 LocalDate payMonth = payroll.getDate().toLocalDate();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("MM-yyyy");
-                String payMonthStr = dateFormat.format(payMonth);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-yyyy");
+                String payMonthStr = payMonth.format(formatter);
 
                 payrollMap.put(payroll.getPayrollId(), payMonthStr);
             }
-
             return payrollMap;
         }catch (Exception e){
             System.out.println("Error while retrieving payroll list:"+ e.getMessage());
