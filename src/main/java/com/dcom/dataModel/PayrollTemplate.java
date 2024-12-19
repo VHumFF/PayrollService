@@ -84,5 +84,11 @@ public class PayrollTemplate implements Serializable {
     public Boolean isPaid(){
         return paid;
     }
+    public String getEmployeeName(){
+        return employeeName;
+    }
+    public double getBaseSalary(){
+        return baseSalary;
+    }
 
 }
